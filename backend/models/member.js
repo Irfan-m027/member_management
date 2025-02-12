@@ -1,27 +1,40 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Member = sequelize.define('Member', {
-    firstName: {
+    first_name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
-
-    lastName: {
+    last_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     dob: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
-    parentSelection: {
+    parent_id: {  
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     gender: {
-      type: DataTypes.ENUM('male','female','other'),
-      allowNull: false
-    }
-});
+      type: DataTypes.ENUM('male', 'female', 'other'),
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.ENUM('active', 'inactive', 'suspended'),
+      allowNull: false,
+      defaultValue: 'active',
+    },
+    last_login: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+  }, {
+    tableName: 'members', 
+    timestamps: true, 
+    underscored: true, 
+  });
+
   return Member;
 };
