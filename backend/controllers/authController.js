@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
 const bcryptjs = require('bcryptjs');
-const { Admin } = require('../models');
+const { User } = require('../models');
 
 const generateToken = (id) => {
-    return jwt.sign({ id}, process.env.JWT_SECRET, {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '30d'
     });
 };
@@ -19,25 +19,36 @@ const loginAdmin = async (req, res) => {
             });
         }
 
-        const admin = await Admin.findOne({ where: { username }});
+        // Find admin user
+        const user = await User.findOne({ 
+            where: { 
+                username,
+                role: 'admin'
+            }
+        });
 
-        if(!admin) {
+        if (!user) {
             return res.status(401).json({
                 success: false,
-                message: 'Invalid Credentials'
+                message: 'Invalid credentials'
             });
         }
 
-        const isMatch = await bcryptjs.compare(password, admin.password);
+        // Check password
+        const isMatch = await bcryptjs.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(401).json({
                 success: false,
-                message: 'Invalid Credentials'
+                message: 'Invalid credentials'
             });
         }
-        console.log("JWT_SECRET:", process.env.JWT_SECRET);
-        const token = generateToken(admin.id)
+
+        // Update last login
+        await user.update({ lastLogin: new Date() });
+
+        // Generate token
+        const token = generateToken(user.id);
 
         res.status(200).json({
             success: true,
@@ -46,7 +57,6 @@ const loginAdmin = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        
         res.status(500).json({
             success: false,
             message: 'Server Error'
@@ -54,15 +64,15 @@ const loginAdmin = async (req, res) => {
     }
 };
 
-const getAdmin = async (req, res) => {
+const getAdminProfile = async (req, res) => {
     try {
-        const admin = await Admin.findByPk(req.admin.id, {
+        const user = await User.findByPk(req.user.id, {
             attributes: { exclude: ['password'] }
         });
 
         res.status(200).json({
             success: true,
-            data: admin
+            data: user
         });
     } catch (error) {
         res.status(500).json({
@@ -72,4 +82,4 @@ const getAdmin = async (req, res) => {
     }
 };
 
-module.exports = { loginAdmin, getAdmin };
+module.exports = { loginAdmin, getAdminProfile };
