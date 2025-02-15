@@ -12,7 +12,7 @@
 
   /* Active Sidebar Item */
 .sidebar-item.active {
-    background-color: #4e79ff; /* Exact blue shade from the screenshot */
+    background-color: purple; /* Exact blue shade from the screenshot */
     border-radius: 8px; /* Rounded edges */
   }
   
