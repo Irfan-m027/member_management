@@ -1,1 +1,39 @@
-<p>sidebar works!</p>
+<aside class="left-sidebar">
+  <div>
+    <div class="brand-logo d-flex align-items-center justify-content-between">
+      <a href="./index.html" class="text-nowrap logo-img">
+        <img src="../assets/images/logos/dark-logo.svg" width="180" alt="" />
+      </a>
+      <div
+        class="close-btn d-xl-none d-block sidebartoggler cursor-pointer"
+        id="sidebarCollapse"
+      >
+        <i class="ti ti-x fs-8"></i>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+      <ul id="sidebarnav">
+        <ng-container *ngFor="let item of menuItems">
+          <li class="nav-small-cap" *ngIf="item.category">
+            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+            <span class="hide-menu">{{ item.category }}</span>
+          </li>
+          <li
+            class="sidebar-item"
+            [routerLink]="[item.link]"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <a class="sidebar-link" aria-expanded="false">
+              <span class="icon-wrapper">
+                <i [class]="item.icon"></i>
+              </span>
+              <span class="hide-menu">{{ item.title }}</span>
+            </a>
+          </li>
+        </ng-container>
+      </ul>
+    </nav>
+  </div>
+</aside>

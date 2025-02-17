@@ -25,4 +25,10 @@ export class MemberService {
   deleteMember(id: number): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(`${this.API_URL}/${id}`);
   }
+
+  verifyMember(memberId: number): Observable<{ message: string; member: Member }> {
+    return this.http.patch<{ message: string, member: Member }>(
+      `${this.API_URL}/${memberId}/verify`,{}
+    );
+  }
 }

@@ -1,0 +1,11 @@
+.custom-icon {
+    width: 20px; 
+    height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  
+  .icon-wrapper {
+    display: flex;
+    align-items: center;
+  }

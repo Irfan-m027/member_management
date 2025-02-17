@@ -1,27 +1,26 @@
-// app.routes.ts
 import { Routes } from '@angular/router';
-import { authGuard } from './guards/auth.guard';
-import { LayoutComponent } from './components/layout/layout.component';
+import { authGuard } from './core/guards/auth.guard';
+import { ContentComponent } from './layout/content/content.component';
 
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () => import('./components/login/login.component')
+    loadComponent: () => import('./features/auth/login/login.component')
       .then(m => m.LoginComponent)
   },
   {
     path: '',
-    component: LayoutComponent,
+    component: ContentComponent,
     canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
-        loadComponent: () => import('./components/dashboard/dashboard.component')
+        loadComponent: () => import('./features/dashboard/dashboard.component')
           .then(m => m.DashboardComponent)
       },
       {
         path: 'members',
-        loadComponent: () => import('./components/members/members.component')
+        loadComponent: () => import('./features/members/members.component')
           .then(m => m.MembersComponent)
       },
     //   {
@@ -54,5 +53,6 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: '/login'
-  }
+  },
+
 ];
