@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Admin } = require('../models');
+const { User } = require('../models');
 
 const protect = async (req, res, next) => {
     try {
@@ -24,16 +24,16 @@ const protect = async (req, res, next) => {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
             //Get admin from token
-            const admin = await Admin.findByPk(decoded.id);
+            const user = await User.findByPk(decoded.id);
 
-            if (!admin) {
+            if (!user) {
                 return res.status(401).json({
                     success: false,
                     message: 'Not authorized to access this route'
                 });
             }
 
-            req.admin = admin;
+            req.user = user;
             next();
         } catch (error) {
             return res.status(401).json({
@@ -49,4 +49,15 @@ const protect = async (req, res, next) => {
     }
 };
 
-module.exports = { protect }
+const adminOnly = async (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+        next();
+    } else {
+        return res.status(403).json({
+            success: false,
+            message: 'Access denied. Admin only route.'
+        });
+    }
+};
+
+module.exports = { protect, adminOnly };

@@ -1,4 +1,5 @@
 'use strict';
+
 module.exports = (sequelize, DataTypes) => {
   const Member = sequelize.define('Member', {
     first_name: {
@@ -11,30 +12,84 @@ module.exports = (sequelize, DataTypes) => {
     },
     dob: {
       type: DataTypes.DATE,
-      allowNull: true,
-    },
-    parent_id: {  
-      type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     gender: {
-      type: DataTypes.ENUM('male', 'female', 'other'),
+      type: DataTypes.ENUM('male', 'female'),
       allowNull: false,
     },
-    status: {
-      type: DataTypes.ENUM('active', 'inactive', 'suspended'),
+    mobile_number: {
+      type: DataTypes.STRING(15),
       allowNull: false,
-      defaultValue: 'active',
+      unique: true,
     },
-    last_login: {
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    aadhar_number: {
+      type: DataTypes.STRING(12),
+      allowNull: false,
+      unique: true,
+    },
+    address: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    is_verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    verified_at: {
       type: DataTypes.DATE,
       allowNull: true,
     },
+    verified_by: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'users', 
+        key: 'id',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
+    },      
+    status: {
+      type: DataTypes.ENUM('active', 'inactive'),
+      defaultValue: 'active',
+    },
+    deceased: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    marital_status: {
+      type: DataTypes.ENUM('single', 'married', 'widowed', 'divorced'),
+      defaultValue: 'single',
+    },
   }, {
     tableName: 'members', 
-    timestamps: true, 
     underscored: true, 
   });
+
+   Member.associate = (models) => {
+    Member.belongsTo(models.User, {
+      foreignKey: 'verified_by',
+      as: 'verifier'
+    });
+    Member.hasOne(models.ParentId, {
+      foreignKey: 'member_id',
+      as: 'parentId'
+    });
+    Member.hasMany(models.Marriage, {
+      foreignKey: 'husband_id',
+      as: 'husbandMarriages'
+    });
+    Member.hasMany(models.Marriage, {
+      foreignKey: 'wife_id',
+      as: 'wifeMarriages'
+    });
+  };
 
   return Member;
 };
