@@ -20,7 +20,7 @@ export class SidebarComponent {
   menuItems: MenuItem[] = [
     { category: 'Home', title: 'Dashboard', icon: 'ti ti-layout-dashboard', link: '/dashboard' },
     { category: 'APPS', title: 'Members', icon: 'ti ti-users', link: '/members' },
-    { title: 'Alerts', icon: 'ti ti-alert-circle', link: '/alerts' },
+    { title: 'Settings', icon: 'ti ti-settings', link: '/settings' },
     { title: 'Cards', icon: 'ti ti-cards', link: '/cards' },
     { title: 'Forms', icon: 'ti ti-file-description', link: '/forms' },
     { title: 'Typography', icon: 'ti ti-typography', link: '/typography' },

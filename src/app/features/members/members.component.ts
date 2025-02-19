@@ -4,22 +4,39 @@ import { Member } from '../../core/models/member';
 import { MemberService } from '../../core/services/member.service';
 import { AuthService } from '../../core/services/auth.service';
 import { AddMemberFormComponent } from '../../shared/modals/add-member-form/add-member-form.component';
+import { EditMemberFormComponent } from '../../shared/modals/edit-member-form/edit-member-form.component';
+import { DeleteMemberModalComponent } from '../../shared/modals/delete-member-modal/delete-member-modal.component';
+import { VerificationModalComponent } from '../../shared/modals/verification-modal/verification-modal.component';
 
 
 @Component({
   selector: 'app-members',
   standalone: true,
-  imports: [CommonModule, AddMemberFormComponent],
+  imports: [
+    CommonModule, 
+    AddMemberFormComponent, 
+    EditMemberFormComponent,
+    DeleteMemberModalComponent,
+    VerificationModalComponent,
+  ],
   templateUrl: './members.component.html',
   styleUrl: './members.component.css'
 })
 export class MembersComponent implements OnInit {
   @Output() memberAdded = new EventEmitter<Member>();
+  @Output() memberEdited = new EventEmitter<Member>();
   members: Member[] = [];
   loading: boolean = true;
   error: string = '';
   currentUser: any = null;
-  isModalOpen = false;
+  isAddModalOpen = false;
+  isEditModalOpen = false;
+  isDeleteModalOpen = false;
+  isVerificationModalOpen = false;
+  deleteMessage = '';
+  memberToDelete: Member | null = null;
+  selectedMember: Member | null = null;
+  memberToVerify: string | null = null;
 
   constructor( 
     private memberService: MemberService,
@@ -32,15 +49,14 @@ export class MembersComponent implements OnInit {
     this.authService.getCurrentUser().subscribe(user => {
       this.currentUser = user;
       console.log('Current user:', user);
-      
-    })
-     
+    }) 
   }
 
   loadMembers(): void {
     this.loading = true;
     this.memberService.getMembers().subscribe({
       next: (response) => {
+        console.log('Members with verifier:', response.data); // Debug log
         this.members = response.data;
         this.loading = false;
       },
@@ -51,16 +67,12 @@ export class MembersComponent implements OnInit {
     });
   }
 
-  onEdit(member: Member): void {
-
-  }
-
   openAddMemberModal(): void {
-    this.isModalOpen = true;
+    this.isAddModalOpen = true;
   }
 
   closeAddMemberModal(): void {
-    this.isModalOpen = false;
+    this.isAddModalOpen = false;
   }
 
   addMember(newMember: any): void {
@@ -68,16 +80,50 @@ export class MembersComponent implements OnInit {
     this.closeAddMemberModal();
   }
 
-  onDelete(id: number): void {
-    if (confirm('Are you sure you wnat to delete')) {
-      this.memberService.deleteMember(id).subscribe({
+  onEdit(member: Member): void {
+    this.selectedMember = { ...member };
+    this.isEditModalOpen = true;
+  }
+
+  closeEditMemberModal(): void {
+    this.isEditModalOpen = false;
+    this.selectedMember = null;
+  }
+
+  updateMember(updatedMember: Member): void {
+    const index = this.members.findIndex(m => m.id === updatedMember.id);
+    if (index !== -1) {
+      this.members = [
+        ...this.members.slice(0, index),
+        updatedMember,
+        ...this.members.slice(index + 1)
+      ];
+    }
+    this.closeEditMemberModal();
+  }
+
+  openDeleteMemberModal(member: Member): void {
+    this.memberToDelete = member;
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteMemberModal(): void {
+    this.isDeleteModalOpen = false;
+    this.memberToDelete = null;
+  }
+
+  deleteMember(): void {
+    if (this.memberToDelete?.id) {
+      this.memberService.deleteMember(this.memberToDelete.id).subscribe({
         next: (response) => {
           if (response.success) {
-            this.members = this.members.filter(members => members.id !== id);
+            this.members = this.members.filter(members => members.id !== this.memberToDelete?.id);
           }
+          this.closeDeleteMemberModal();
         },
         error: (error) => {
           this.error = 'Failed to delete member';
+          this.closeDeleteMemberModal();
         }
       });
     }
@@ -132,16 +178,40 @@ export class MembersComponent implements OnInit {
   }
 
   getVerifierName(member: Member): string {
-    return member.verifier?.username || '';
+    if (!member.verifier) {
+      console.log('No verifier data for member:', member.id);
+      return '-';
+    }
+    return member.verifier.username;
   }
 
-  async verifyMember(memberId: number) {
-    try {
-      await this.memberService.verifyMember(memberId).toPromise();
-      await this.loadMembers();
-    } catch (error) {
-      console.error('Error verifying member: ', error);      
+  openVerificationModal(memberId: number | undefined) {
+    if (memberId !== undefined) {
+      this.memberToVerify = memberId.toString();
+      this.isVerificationModalOpen = true;
+    }
+    else {
+      console.error('Invalid member ID');
+      
     }
   }
 
+  closeVerificationModal() {
+    this.isVerificationModalOpen = false;
+    this.memberToVerify = null;
+  }
+
+  verifyMember() {
+    if (this.memberToVerify) {
+      this.memberService.verifyMember(this.memberToVerify).subscribe({
+        next: (response) => {
+          this.loadMembers();
+          this.closeVerificationModal();
+        },
+        error: (error) => {
+          console.error('Error verifying member:', error);
+        }
+      });
+    }
+  }
 }

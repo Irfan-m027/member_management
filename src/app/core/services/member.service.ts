@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { Member, MemberResponse, SingleMemberResponse } from '../models/member';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +10,10 @@ import { Member, MemberResponse, SingleMemberResponse } from '../models/member';
 export class MemberService {
   private readonly API_URL = 'http://localhost:5000/api/members';
   private http = inject(HttpClient);
+
+  constructor(
+    private authService: AuthService
+  ) {}
 
   getMembers(): Observable<MemberResponse> {
     return this.http.get<MemberResponse>(this.API_URL);
@@ -26,9 +31,21 @@ export class MemberService {
     return this.http.delete<{ success: boolean; message: string }>(`${this.API_URL}/${id}`);
   }
 
-  verifyMember(memberId: number): Observable<{ message: string; member: Member }> {
-    return this.http.patch<{ message: string, member: Member }>(
-      `${this.API_URL}/${memberId}/verify`,{}
+  verifyMember(memberId: string): Observable<any> {
+    return this.authService.getCurrentUser().pipe(
+      switchMap(user => {
+        if (!user) {
+          throw new Error('No authenticated user found');
+        }
+
+        const verificationData = {
+          is_verified: true,
+          verified_at: new Date().toISOString(),
+          verified_by: user.id
+        };
+
+        return this.http.put<any>(`${this.API_URL}/${memberId}`, verificationData);
+      })
     );
   }
 }

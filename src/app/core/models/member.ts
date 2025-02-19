@@ -16,7 +16,7 @@ export interface Member {
     marital_status: 'Single' | 'Married' | 'Widowed' | 'Divorced';
     verifier?: {
         username: string;
-    }
+    };
     createdAt?: Date;
     updatedAt?: Date;
 }

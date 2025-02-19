@@ -23,7 +23,7 @@
 </div>
 
 <app-add-member-form
-  [isVisible]="isModalOpen"
+  [isVisible]="isAddModalOpen"
   (memberAdded)="addMember($event)"
   (cancelAdd)="closeAddMemberModal()"
 >
@@ -91,7 +91,7 @@
               {{ formatDate(member.verified_at) }}
             </td>
             <td class="px-4 py-3 text-sm">
-              {{ getVerifierName(member) }}
+              {{ member.is_verified ? getVerifierName(member) : "-" }}
             </td>
           </ng-container>
 
@@ -129,7 +129,8 @@
               <button
                 *ngIf="!member.is_verified"
                 class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-green-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
-                (click)="verifyMember(member.id!)"
+                (click)="openVerificationModal(member.id)"
+                title="Verify Member"
               >
                 <svg
                   class="w-5 h-5"
@@ -145,6 +146,12 @@
                   ></path>
                 </svg>
               </button>
+
+              <app-verification-modal
+                [isVisible]="isVerificationModalOpen"
+                (confirmed)="verifyMember()"
+                (cancelled)="closeVerificationModal()"
+              ></app-verification-modal>
 
               <button
                 class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
@@ -163,10 +170,18 @@
                 </svg>
               </button>
 
+              <app-edit-member-form
+                [isVisible]="isEditModalOpen"
+                [member]="selectedMember"
+                (memberEdited)="updateMember($event)"
+                (cancelEdit)="closeEditMemberModal()"
+              >
+              </app-edit-member-form>
+
               <button
                 class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                 aria-label="Delete"
-                (click)="onDelete(member.id!)"
+                (click)="openDeleteMemberModal(member)"
               >
                 <svg
                   class="w-5 h-5"
@@ -181,6 +196,13 @@
                   ></path>
                 </svg>
               </button>
+
+              <app-delete-member-modal
+                [isVisible]="isDeleteModalOpen"
+                [member]="memberToDelete"
+                (confirmed)="deleteMember()"
+                (cancelled)="closeDeleteMemberModal()"
+              ></app-delete-member-modal>
             </div>
           </td>
         </tr>

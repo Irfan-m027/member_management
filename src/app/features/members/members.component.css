@@ -9,3 +9,8 @@
     display: flex;
     align-items: center;
   }
+
+  img {
+    filter: invert(11%) sepia(100%) saturate(7487%) hue-rotate(220deg);
+  }
+  

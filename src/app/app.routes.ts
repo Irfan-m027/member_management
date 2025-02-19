@@ -23,11 +23,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/members/members.component')
           .then(m => m.MembersComponent)
       },
-    //   {
-    //     path: 'alerts',
-    //     loadComponent: () => import('./components/alerts/alerts.component')
-    //       .then(m => m.AlertsComponent)
-    //   },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/settings/settings.component')
+          .then(m => m.SettingsComponent)
+      },
     //   {
     //     path: 'cards',
     //     loadComponent: () => import('./components/cards/cards.component')
