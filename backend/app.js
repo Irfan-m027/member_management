@@ -6,6 +6,8 @@ var logger = require('morgan');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const memberRoutes = require('./routes/memberRoutes');
+const appConfigRouter = require('./routes/appConfig');
+
 require('dotenv').config();
 
 var indexRouter = require('./routes/index');
@@ -27,6 +29,7 @@ app.use('/users', usersRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/members', memberRoutes);
 
+app.use('/api/app-config', appConfigRouter);
 
 app.use('*', (req, res) => {
     res.status(404).json({
@@ -34,5 +37,10 @@ app.use('*', (req, res) => {
         message: 'Route not found'
     });
 });
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ success: false, error: 'Something went wrong!' });
+  });
 
 module.exports = app;

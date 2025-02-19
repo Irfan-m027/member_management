@@ -25,6 +25,10 @@ const protect = async (req, res, next) => {
 
             //Get user from token and check if it's admin
             const user = await User.findByPk(decoded.id);
+            
+            console.log('Decoded Token:', decoded);
+            console.log('Fetched User:', user);
+    
 
             if (!user || user.role !== 'admin') {
                 return res.status(401).json({
