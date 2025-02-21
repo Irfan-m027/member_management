@@ -29,7 +29,8 @@ export class SidebarComponent implements OnInit {
     { title: 'Register', icon: 'ti ti-user-plus', link: '/register' }
   ];
 
-  logoUrl: string | null = '../assets/images/logos/dark-logo.svg';
+  logoUrl: string | null = null;
+  appName: string = 'App Name'; 
 
   constructor(private appConfigService: AppConfigService) {}
 
@@ -44,8 +45,13 @@ export class SidebarComponent implements OnInit {
   loadLogo() {
     this.appConfigService.getAppConfig().subscribe({
       next: (response) => {
-        if (response.success && response.data && response.data.logo) {
-          this.logoUrl = `http://localhost:5000${response.data.logo}`;
+        if (response.success && response.data) {
+          if (response.data.logo) {
+            this.logoUrl = `http://localhost:5000${response.data.logo}`;            
+          }
+          if (response.data.app_name) {
+            this.appName = response.data.app_name;
+          }
         }
       },
       error: (error) => {
