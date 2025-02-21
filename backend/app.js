@@ -43,4 +43,6 @@ app.use((err, req, res, next) => {
     res.status(500).json({ success: false, error: 'Something went wrong!' });
   });
 
+// app.use('/images', express.static(path.join(__dirname, 'public/images')));
+
 module.exports = app;

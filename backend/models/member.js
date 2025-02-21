@@ -2,6 +2,10 @@
 
 module.exports = (sequelize, DataTypes) => {
   const Member = sequelize.define('Member', {
+    profile_image: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     first_name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -54,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
-    },      
+    },   
     status: {
       type: DataTypes.ENUM('active', 'inactive'),
       defaultValue: 'active',
@@ -89,6 +93,13 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'wife_id',
       as: 'wifeMarriages'
     });
+  };
+
+  Member.prototype.getProfileImageUrl = function() {
+    if (this.profile_image) {
+      return `/images/member-images/${this.profile_image}`;
+    }
+    return `/images/member-avatars/${this.gender.toLowerCase()}-avatar.png`;
   };
 
   return Member;
