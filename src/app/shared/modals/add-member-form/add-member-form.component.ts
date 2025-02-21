@@ -16,6 +16,20 @@ export class AddMemberFormComponent implements OnInit {
   @Output() cancelAdd = new EventEmitter<void>();
 
   memberForm: FormGroup;
+  selectedImage: File | null = null;
+  imagePreview: string | ArrayBuffer | null = null;
+
+  genderOptions = [
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' }
+  ];
+
+  maritalStatusOptions = [
+    { value: 'Single', label: 'Single' },
+    { value: 'Married', label: 'Married' },
+    { value: 'Divorced', label: 'Divorced' },
+    { value: 'Widowed', label: 'Widowed' }
+  ];
 
   constructor( 
     private fb: FormBuilder,
@@ -44,6 +58,24 @@ export class AddMemberFormComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length) {
+      this.selectedImage = input.files[0];
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result;
+      };
+      reader.readAsDataURL(this.selectedImage);
+    }
+  }
+
+  clearImage(): void {
+    this.selectedImage = null;
+    this.imagePreview = null;
+  }
+
   onSubmit(): void {
     if (this.memberForm.valid) {
       const formData = this.memberForm.value;
@@ -53,10 +85,12 @@ export class AddMemberFormComponent implements OnInit {
       formData.created_at = new Date();
       formData.updated_at = new Date();
 
-      this.memberService.createMember(formData).subscribe({
+      this.memberService.createMember(formData, this.selectedImage).subscribe({
         next: (response) => {
           this.memberAdded.emit(response.data);
           this.memberForm.reset();
+          this.selectedImage = null;
+          this.imagePreview = null;
           this.isVisible = false;
         },
         error: (error) => {
@@ -68,9 +102,28 @@ export class AddMemberFormComponent implements OnInit {
 
   onCancel(): void {
     this.memberForm.reset();
+    this.selectedImage = null;
+    this.imagePreview = null;
     this.cancelAdd.emit();
     this.isVisible = false;
   }
+
+isFieldInvalid(fieldName: string): boolean {
+  const field = this.memberForm.get(fieldName);
+  return field ? field.invalid && (field.dirty || field.touched) : false;
 }
 
+getErrorMessage(fieldName: string): string {
+  const control = this.memberForm.get(fieldName);
+  if (control?.errors) {
+    if (control.errors['required']) return `${fieldName} is required`;
+    if (control.errors['email']) return 'Invalid email format';
+    if (control.errors['pattern']) {
+      if (fieldName === 'mobile_number') return 'Mobile number must be 10 digits';
+      if (fieldName === 'aadhar_number') return 'Aadhar number must be 12 digits';
+    }
+  }
+  return '';
+}
+}
 

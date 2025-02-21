@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AppConfigService } from '../../core/services/app-config.service';
 import { ToastrService } from 'ngx-toastr';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component({
   selector: 'app-settings',
@@ -78,11 +79,13 @@ export class SettingsComponent implements OnInit{
       if (this.selectedFile) {
         formData.append('logo', this.selectedFile);
       }
-
+  
       this.appConfigService.saveAppConfig(formData).subscribe({
         next: (response) => {
           if (response.success) {
             this.toastr.success('Configuration saved successfully!', 'Success');
+          } else {
+            this.toastr.error('Failed to save configuration', 'Error');
           }
         },
         error: (error) => {

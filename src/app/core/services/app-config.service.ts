@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { EventEmitter, Injectable } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { AppConfig } from '../models/app-config';
 
 @Injectable({
@@ -8,11 +8,16 @@ import { AppConfig } from '../models/app-config';
 })
 export class AppConfigService {
   private apiUrl = 'http://localhost:5000/api/app-config';
+  configUpdated = new EventEmitter<void>();
 
   constructor(private http: HttpClient) { }
 
   saveAppConfig(formData: FormData): Observable<{ success: boolean; data: AppConfig}> {
-    return this.http.post<{success: boolean; data: AppConfig}>(this.apiUrl, formData)
+    return this.http.post<{success: boolean; data: AppConfig}>(this.apiUrl, formData).pipe(
+      tap(() => {
+        this.configUpdated.emit();
+      })
+    );
   }
 
   getAppConfig(): Observable<{ success: boolean, data: AppConfig }> {

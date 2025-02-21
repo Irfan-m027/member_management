@@ -1,5 +1,7 @@
 export interface Member {
     id?: number;
+    profile_image?: string;
+    profile_image_url?: string; 
     first_name: string;
     last_name: string;
     dob: Date;
@@ -15,11 +17,12 @@ export interface Member {
     deceased: boolean; 
     marital_status: 'Single' | 'Married' | 'Widowed' | 'Divorced';
     verifier?: {
-        username: string;
+      username: string;
     };
     createdAt?: Date;
     updatedAt?: Date;
-}
+  }
+  
 
 
 export interface MemberResponse {

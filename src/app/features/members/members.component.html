@@ -37,6 +37,7 @@
         <tr
           class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
         >
+          <th class="px-4 py-3">Profile</th>
           <th class="px-4 py-3">First Name</th>
           <th class="px-4 py-3">Last Name</th>
           <th class="px-4 py-3">DOB</th>
@@ -59,6 +60,18 @@
           *ngFor="let member of members"
           class="text-gray-700 dark:text-gray-400"
         >
+          <td class="px-4 py-3">
+            <div class="flex items-center">
+              <div class="relative hidden w-12 h-12 rounded-full md:block">
+                <img
+                  [src]="member.profile_image_url"
+                  alt="{{ member.first_name }} {{ member.last_name }}"
+                  class="profile-image w-full h-full object-cover rounded-full"
+                  (error)="handleImageError($event, member)"
+                />
+              </div>
+            </div>
+          </td>
           <td class="px-4 py-3 text-sm font-semibold">
             {{ member.first_name }}
           </td>

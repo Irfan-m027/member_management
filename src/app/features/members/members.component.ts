@@ -67,6 +67,32 @@ export class MembersComponent implements OnInit {
     });
   }
 
+// In your component
+handleImageError(event: any, member: Member) {
+  // If image fails to load, show initials placeholder
+  this.showInitialPlaceholder(event.target, member);
+  return;
+}
+
+// Keep this as final fallback if no avatars load
+showInitialPlaceholder(imgElement: HTMLImageElement, member: Member) {
+  // Hide the image
+  imgElement.style.display = 'none';
+  
+  // Get the parent element
+  const parentElement = imgElement.parentElement;
+  if (!parentElement) return;
+  
+  // Create a div with initials
+  const initialsDiv = document.createElement('div');
+  initialsDiv.className = 'w-full h-full flex items-center justify-center bg-blue-500 text-white rounded-full';
+  const initials = `${member.first_name.charAt(0)}${member.last_name.charAt(0)}`;
+  initialsDiv.textContent = initials;
+  
+  // Add the div to the parent
+  parentElement.appendChild(initialsDiv);
+}
+
   openAddMemberModal(): void {
     this.isAddModalOpen = true;
   }

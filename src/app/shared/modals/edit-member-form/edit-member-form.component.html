@@ -16,6 +16,41 @@
 
       <div class="modal-body">
         <form [formGroup]="memberForm" (ngSubmit)="onSubmit()">
+          <div class="form-group mb-6">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Profile Image</label
+            >
+            <div class="image-upload-container">
+              <div class="preview-container" *ngIf="imagePreview">
+                <img
+                  [src]="imagePreview"
+                  alt="Profile Preview"
+                  class="image-preview"
+                />
+                <button
+                  type="button"
+                  class="clear-image"
+                  (click)="clearImage()"
+                >
+                  ×
+                </button>
+              </div>
+              <div class="upload-button" *ngIf="!imagePreview">
+                <label for="imageInput" class="custom-file-upload">
+                  <i class="fa fa-cloud-upload"></i> Choose Image
+                </label>
+                <input
+                  type="file"
+                  id="imageInput"
+                  accept="image/*"
+                  (change)="onImageSelected($event)"
+                  style="display: none"
+                />
+              </div>
+              <p class="help-text">Edit profile picture</p>
+            </div>
+          </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group">
               <label>First Name</label>

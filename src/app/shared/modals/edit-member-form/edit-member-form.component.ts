@@ -17,8 +17,13 @@ export class EditMemberFormComponent implements OnInit {
     if (value) {
       this._member = value;
       this.patchFormValues();
+
+      if (value.profile_image_url) {
+        this.imagePreview = value.profile_image_url;
+      }
     }
   }
+
   get member(): Member | null {
     return this._member;
   }
@@ -28,16 +33,18 @@ export class EditMemberFormComponent implements OnInit {
 
   private _member: Member | null = null;
   memberForm: FormGroup;
+  selectedImage: File | null = null;
+  imagePreview: string | ArrayBuffer | null = null;
+  removeExistingImage: boolean = false;
 
   genderOptions = [
-    { value: 'Male', label: 'Male' },
-    { value: 'Female', label: 'Female' },
-    { value: 'Other', label: 'Other' }
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' }
   ];
 
   statusOptions = [
-    { value: 'Active', label: 'Active' },
-    { value: 'Inactive', label: 'Inactive' }
+    { value: 'active', label: 'Active' },
+    { value: 'inactive', label: 'Inactive' }
   ];
 
   maritalStatusOptions = [
@@ -93,6 +100,31 @@ export class EditMemberFormComponent implements OnInit {
     return d.toISOString().split('T')[0];
   }
 
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length) {
+      this.selectedImage = input.files[0];
+      this.removeExistingImage = false;
+
+      //Preview image
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result;
+      };
+      reader.readAsDataURL(this.selectedImage);
+    }
+  }
+
+  clearImage(): void {
+    this.selectedImage = null;
+    this.imagePreview = null;
+    
+    // Set flag to remove existing image when updating
+    if (this.member?.profile_image) {
+      this.removeExistingImage = true;
+    }
+  }
+
   onSubmit(): void {
     if (this.memberForm.valid && this.member?.id) {
       const formData = {
@@ -104,10 +136,18 @@ export class EditMemberFormComponent implements OnInit {
         updated_at: new Date()
       };
 
-      this.memberService.updateMember(this.member.id, formData).subscribe({
+      this.memberService.updateMember(
+        this.member.id,
+        formData,
+        this.selectedImage,
+        this.removeExistingImage
+      ).subscribe({
         next: (response) => {
           this.memberEdited.emit(response.data);
           this.memberForm.reset();
+          this.selectedImage = null;
+          this.imagePreview = null;
+          this.removeExistingImage = false;
           this.isVisible = false;
         },
         error: (error) => {
@@ -119,6 +159,9 @@ export class EditMemberFormComponent implements OnInit {
 
   onCancel(): void {
     this.memberForm.reset();
+    this.selectedImage = null;
+    this.imagePreview = null;
+    this.removeExistingImage = false;
     this.cancelEdit.emit();
   }
 

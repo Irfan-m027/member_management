@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
+import { AppConfigService } from '../../core/services/app-config.service';
 
 interface MenuItem {
   title: string;
@@ -16,7 +17,7 @@ interface MenuItem {
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   menuItems: MenuItem[] = [
     { category: 'Home', title: 'Dashboard', icon: 'ti ti-layout-dashboard', link: '/dashboard' },
     { category: 'APPS', title: 'Members', icon: 'ti ti-users', link: '/members' },
@@ -27,6 +28,31 @@ export class SidebarComponent {
     { category: 'AUTH', title: 'Login', icon: 'ti ti-login', link: '/login' },
     { title: 'Register', icon: 'ti ti-user-plus', link: '/register' }
   ];
+
+  logoUrl: string | null = '../assets/images/logos/dark-logo.svg';
+
+  constructor(private appConfigService: AppConfigService) {}
+
+  ngOnInit() {
+    this.loadLogo();
+    
+    this.appConfigService.configUpdated.subscribe(() => {
+      this.loadLogo();
+    });
+  }
+  
+  loadLogo() {
+    this.appConfigService.getAppConfig().subscribe({
+      next: (response) => {
+        if (response.success && response.data && response.data.logo) {
+          this.logoUrl = `http://localhost:5000${response.data.logo}`;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading logo:', error);
+      }
+    });
+  }
 
   toggleSidebar() {
     document.querySelector('.left-sidebar')?.classList.toggle('collapse');
