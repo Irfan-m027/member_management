@@ -147,21 +147,8 @@ private getRandomAvatarUrl(gender: string): string {
     return this.http.delete<{ success: boolean; message: string }>(`${this.API_URL}/${id}`);
   }
 
-  verifyMember(memberId: string): Observable<any> {
-    return this.authService.getCurrentUser().pipe(
-      switchMap(user => {
-        if (!user) {
-          throw new Error('No authenticated user found');
-        }
-
-        const verificationData = {
-          is_verified: true,
-          verified_at: new Date().toISOString(),
-          verified_by: user.id
-        };
-
-        return this.http.put<any>(`${this.API_URL}/${memberId}`, verificationData);
-      })
-    );
-  }
+// Verify Member method
+verifyMember(memberId: number): Observable<SingleMemberResponse> {
+  return this.http.put<SingleMemberResponse>(`${this.API_URL}/${memberId}/verify`, {});
+}
 }

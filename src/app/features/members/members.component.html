@@ -139,26 +139,17 @@
 
           <td class="px-4 py-3">
             <div class="flex items-center space-x-4 text-sm">
-              <button
-                *ngIf="!member.is_verified"
-                class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-green-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
-                (click)="openVerificationModal(member.id)"
-                title="Verify Member"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-              </button>
+              <!-- External SVG verify icon with conditional styling -->
+              <img
+                src="assets/css/icons/verify.svg"
+                class="w-6 h-6 cursor-pointer transition-all duration-200"
+                [ngClass]="{
+                  'verify-icon-blue': member.is_verified,
+                  'verify-icon-gray': !member.is_verified
+                }"
+                (click)="openVerificationModal(member)"
+                alt="Verification icon"
+              />
 
               <app-verification-modal
                 [isVisible]="isVerificationModalOpen"
@@ -167,7 +158,8 @@
               ></app-verification-modal>
 
               <button
-                class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                style="color: #2563eb"
                 aria-label="Edit"
                 (click)="onEdit(member)"
               >
@@ -192,7 +184,8 @@
               </app-edit-member-form>
 
               <button
-                class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                style="color: #2563eb"
                 aria-label="Delete"
                 (click)="openDeleteMemberModal(member)"
               >

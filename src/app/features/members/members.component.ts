@@ -56,7 +56,7 @@ export class MembersComponent implements OnInit {
     this.loading = true;
     this.memberService.getMembers().subscribe({
       next: (response) => {
-        console.log('Members with verifier:', response.data); // Debug log
+        console.log('Members with verifier:', response.data);
         this.members = response.data;
         this.loading = false;
       },
@@ -211,14 +211,13 @@ showInitialPlaceholder(imgElement: HTMLImageElement, member: Member) {
     return member.verifier.username;
   }
 
-  openVerificationModal(memberId: number | undefined) {
-    if (memberId !== undefined) {
-      this.memberToVerify = memberId.toString();
+  openVerificationModal(member: Member): void {
+    if (member?.id !== undefined) {
+      this.memberToVerify = member.id.toString();
       this.isVerificationModalOpen = true;
     }
     else {
       console.error('Invalid member ID');
-      
     }
   }
 
@@ -229,10 +228,16 @@ showInitialPlaceholder(imgElement: HTMLImageElement, member: Member) {
 
   verifyMember() {
     if (this.memberToVerify) {
-      this.memberService.verifyMember(this.memberToVerify).subscribe({
+      this.memberService.verifyMember(parseInt(this.memberToVerify)).subscribe({
         next: (response) => {
-          this.loadMembers();
-          this.closeVerificationModal();
+          if (response.success && response.data) {
+            const index = this.members.findIndex(m => m.id === parseInt(this.memberToVerify!));
+            if (index !== -1) {
+              // Update the member with the complete response data
+              this.members[index] = response.data;
+            }
+            this.closeVerificationModal();
+          }
         },
         error: (error) => {
           console.error('Error verifying member:', error);

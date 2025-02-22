@@ -17,6 +17,7 @@ export interface Member {
     deceased: boolean; 
     marital_status: 'Single' | 'Married' | 'Widowed' | 'Divorced';
     verifier?: {
+      id: number;
       username: string;
     };
     createdAt?: Date;
