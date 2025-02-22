@@ -1,5 +1,5 @@
 const express = require('express');
-const { Member, sequelize, ParentId, Marriage } = require('../models');
+const { Member, sequelize, ParentId, Marriage, User } = require('../models');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 const { Op } = require('sequelize');
 const { v4: uuidv4 } = require('uuid'); 
@@ -8,6 +8,72 @@ const path = require('path');
 const fs = require('fs');
 
 const router = express.Router();
+
+router.put('/:id/verify', protect, adminOnly, async (req, res) => {
+    try {
+        const memberId = req.params.id;
+        const userId = req.user.id;
+
+        // Get current user (verifier) info first
+        const currentUser = await User.findByPk(userId, {
+            attributes: ['id', 'username']
+        });
+
+        if (!currentUser) {
+            return res.status(404).json({
+                success: false,
+                message: 'Verifier not found'
+            });
+        }
+
+        // Find and update the member
+        const member = await Member.findByPk(memberId);
+        
+        if (!member) {
+            return res.status(404).json({
+                success: false,
+                message: 'Member not found'
+            });
+        }
+
+        // Update member verification details
+        await member.update({
+            is_verified: true,
+            verified_by: userId,
+            verified_at: new Date()
+        });
+
+        // Fetch updated member with verifier info
+        const updatedMember = await Member.findByPk(memberId, {
+            include: [{
+                model: User,
+                as: 'verifier',
+                attributes: ['id', 'username']
+            }]
+        });
+
+        // Explicitly structure the response
+        const response = {
+            ...updatedMember.get({ plain: true }),
+            verifier: {
+                id: currentUser.id,
+                username: currentUser.username
+            }
+        };
+
+        res.status(200).json({
+            success: true,
+            data: response
+        });
+
+    } catch (error) {
+        console.error('Verification error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
 
 // Set up multer storage for file uploads
 const storage = multer.diskStorage({
@@ -50,10 +116,16 @@ router.get('/', async (req, res) => {
         const members = await Member.findAll({
             include: [
                 {
-                model: ParentId,
-                as: 'parentId',
-                attributes: ['parent_id']
-            }]
+                    model: ParentId,
+                    as: 'parentId',
+                    attributes: ['parent_id']
+                },
+                {
+                    model: User,
+                    as: 'verifier',
+                    attributes: ['id', 'username']
+                }
+            ]
         });
         res.status(200).json({
             success: true,

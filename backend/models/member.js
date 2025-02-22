@@ -79,7 +79,8 @@ module.exports = (sequelize, DataTypes) => {
    Member.associate = (models) => {
     Member.belongsTo(models.User, {
       foreignKey: 'verified_by',
-      as: 'verifier'
+      as: 'verifier',
+      targetKey: 'id'
     });
     Member.hasOne(models.ParentId, {
       foreignKey: 'member_id',
